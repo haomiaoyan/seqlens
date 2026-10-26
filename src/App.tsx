@@ -22,6 +22,17 @@ export default function App() {
   // not flash as defaults first. `useState` with a lazy initializer runs once.
   const [restored] = useState(() => readSavedSession())
 
+  // A shared deep link (?example=...) is an explicit request, so it wins over a
+  // restored session on screen. It must not, however, be written to storage
+  // before the visitor touches anything: otherwise merely opening someone
+  // else's link would silently destroy the session they had been working on.
+  const [deepLinkId] = useState<string | null>(() => {
+    const requested = new URLSearchParams(window.location.search).get('example')
+    if (!requested) return null
+    return EXAMPLES.some((item) => item.id === requested) ? requested : null
+  })
+  const [deepLinkPristine, setDeepLinkPristine] = useState(deepLinkId !== null && restored !== null)
+
   const [raw, setRaw] = useState(restored?.raw ?? '')
   const [activeExample, setActiveExample] = useState<string | null>(restored?.activeExample ?? null)
   const [selection, setSelection] = useState<Selection | null>(null)
@@ -40,7 +51,9 @@ export default function App() {
     windowSize,
     step,
     activeExample,
-    enabled: true,
+    // Hold off while showing a deep-linked example the visitor has not touched,
+    // so a shared link cannot overwrite their own saved session.
+    enabled: !deepLinkPristine,
     restored: restored !== null,
   })
   const { markRestored, forget } = persistence
@@ -58,15 +71,16 @@ export default function App() {
   }, [restored, markRestored])
 
   // Deep link support: ?example=promoter loads a bundled demo on first paint.
-  // It wins over a restored session, since the link is an explicit request.
+  // It wins over a restored session on screen, since the link is an explicit
+  // request — but see `deepLinkPristine`: it is not persisted until the visitor
+  // interacts, so opening a shared link cannot wipe their own work.
   useEffect(() => {
-    const requested = new URLSearchParams(window.location.search).get('example')
-    if (!requested) return
-    const example = EXAMPLES.find((item) => item.id === requested)
+    if (!deepLinkId) return
+    const example = EXAMPLES.find((item) => item.id === deepLinkId)
     if (!example) return
     setRaw(example.fasta)
     setActiveExample(example.id)
-  }, [])
+  }, [deepLinkId])
 
   // Re-apply the URL hash once React has rendered the target sections.
   useEffect(() => {
@@ -93,6 +107,7 @@ export default function App() {
   function loadExample(id: string) {
     const example = EXAMPLES.find((item) => item.id === id)
     if (!example) return
+    setDeepLinkPristine(false)
     setRaw(example.fasta)
     setActiveExample(id)
     requestAnimationFrame(() => {
@@ -105,6 +120,7 @@ export default function App() {
   }
 
   function clearAll() {
+    setDeepLinkPristine(false)
     setRaw('')
     setActiveExample(null)
     forget()
@@ -132,6 +148,10 @@ export default function App() {
                 {persistence.state === 'unavailable' ? (
                   <span className="session-note__item session-note__item--dim">
                     浏览器禁用了本地存储，本次内容不会自动保存
+                  </span>
+                ) : deepLinkPristine ? (
+                  <span className="session-note__item session-note__item--dim">
+                    正在预览示例，你上次的序列仍保留着
                   </span>
                 ) : (
                   restoredLabel && (
@@ -180,6 +200,7 @@ export default function App() {
               <SequenceInput
                 raw={raw}
                 onRawChange={(value) => {
+                  setDeepLinkPristine(false)
                   setRaw(value)
                   setActiveExample(null)
                 }}

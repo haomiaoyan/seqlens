@@ -33,7 +33,15 @@ const DEBOUNCE_MS = 500
 export function useSessionPersistence({ raw, windowSize, step, activeExample, enabled, restored }: Options) {
   const [storage] = useState<StorageLike | null>(() => getBrowserStorage())
   const [state, setState] = useState<PersistenceState>(() => (storage ? 'idle' : 'unavailable'))
-  const lastWritten = useRef<string | null>(null)
+  // Seed the "already on disk" marker with the restored payload on the very
+  // first render, so mounting does not rewrite what was just read (that would
+  // flip the "restored" hint to "saved" immediately). Doing it here rather than
+  // in the effect matters: a deep link starts disabled, and the effect's first
+  // enabled run carries the example, not the restored session — comparing
+  // against that would swallow the visitor's first real edit.
+  const lastWritten = useRef<string | null>(
+    restored ? JSON.stringify({ raw, windowSize, step, activeExample } satisfies Session) : null,
+  )
 
   useEffect(() => {
     if (!enabled || !storage) return
@@ -48,14 +56,6 @@ export function useSessionPersistence({ raw, windowSize, step, activeExample, en
     const isBlank = raw.length === 0 && activeExample === null
     if (isBlank && lastWritten.current === null) return
 
-    // On mount with a restored session, the payload already matches what is on
-    // disk. Record it instead of rewriting, so the "restored" hint survives
-    // instead of immediately flipping to "saved".
-    if (restored && lastWritten.current === null) {
-      lastWritten.current = serialized
-      return
-    }
-
     const timer = window.setTimeout(() => {
       if (saveSession(storage, payload)) {
         lastWritten.current = serialized
@@ -66,7 +66,7 @@ export function useSessionPersistence({ raw, windowSize, step, activeExample, en
     }, DEBOUNCE_MS)
 
     return () => window.clearTimeout(timer)
-  }, [raw, windowSize, step, activeExample, enabled, storage, restored])
+  }, [raw, windowSize, step, activeExample, enabled, storage])
 
   const forget = useCallback(() => {
     clearSession(storage)
