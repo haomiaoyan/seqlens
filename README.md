@@ -6,6 +6,11 @@ SeqLens 是一个**本地优先**的 DNA 序列可视化学习工具。粘贴 FA
 
 所有计算都在浏览器里完成，没有服务端，序列不会离开你的电脑。
 
+**在线试用：[https://haomiaoyan.github.io/seqlens/](https://haomiaoyan.github.io/seqlens/)**
+
+[![Deploy to GitHub Pages](https://github.com/haomiaoyan/seqlens/actions/workflows/deploy.yml/badge.svg)](https://github.com/haomiaoyan/seqlens/actions/workflows/deploy.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-37e2c8.svg)](LICENSE)
+
 ![SeqLens 首屏](docs/hero.png)
 
 ## 它能做什么
@@ -68,10 +73,15 @@ npm run typecheck
 
 ## 部署到 GitHub Pages
 
+本仓库已部署在 **<https://haomiaoyan.github.io/seqlens/>**，`main` 分支每次 push 都会自动发布。
+
+如果你想 fork 一份部署自己的：
+
 1. 在 `src/config.ts` 里把 `GITHUB_URL` 改成你自己的仓库地址。
 2. 把整个目录推到 GitHub（默认分支 `main`）。
 3. 仓库 **Settings → Pages → Build and deployment → Source** 选 **GitHub Actions**。
-4. 之后每次 push 到 `main`，`.github/workflows/deploy.yml` 会自动构建并发布到 `https://<用户名>.github.io/<仓库名>/`。
+   - 也可以跳过这步：workflow 里 `configure-pages` 带了 `enablement: true`，首次运行会自动启用 Pages。
+4. 之后每次 push 到 `main`，`.github/workflows/deploy.yml` 会自动跑测试、构建并发布到 `https://<用户名>.github.io/<仓库名>/`。
 
 `vite.config.ts` 里的 `base: './'` 让产物使用相对路径，因此部署在仓库子路径下也能正常加载资源，无需额外配置。
 
