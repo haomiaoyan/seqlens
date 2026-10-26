@@ -1,0 +1,14 @@
+# Normalize line endings so the repo stays LF on every platform.
+* text=auto eol=lf
+
+# Windows batch files must keep CRLF to behave predictably in cmd.exe.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets: never diff or normalize.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
