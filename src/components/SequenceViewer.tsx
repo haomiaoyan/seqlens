@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { isCursorKey, moveCursor } from '../lib/keyboard'
 import { chunkSequence, type MotifMatch } from '../lib/sequence'
 
 const ROW_WIDTH = 60
@@ -65,6 +66,8 @@ export function SequenceViewer({ sequence, selection, onSelect, matches, showMat
   const rows = chunkSequence(sequence, ROW_WIDTH)
   const dragAnchor = useRef<number | null>(null)
   const [dragging, setDragging] = useState(false)
+  const keyCursor = useRef(0)
+  const keyAnchor = useRef<number | null>(null)
 
   const highlighted = new Set<number>()
   if (showMatches) {
@@ -107,6 +110,24 @@ export function SequenceViewer({ sequence, selection, onSelect, matches, showMat
     }
   }, [dragging])
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!isCursorKey(event.key)) return
+    event.preventDefault()
+    const result = moveCursor({
+      length: sequence.length,
+      step: 1,
+      span: 1,
+      key: event.key,
+      shift: event.shiftKey,
+      cursor: keyCursor.current,
+      anchor: keyAnchor.current,
+      selection,
+    })
+    keyCursor.current = result.cursor
+    keyAnchor.current = result.anchor
+    onSelect(result.selection)
+  }
+
   return (
     <section className="panel panel--sequence" aria-labelledby="sequence-title">
       <div className="panel__head">
@@ -127,9 +148,19 @@ export function SequenceViewer({ sequence, selection, onSelect, matches, showMat
         </div>
       </div>
 
-      <p className="panel__hint">在序列上按住拖选，即可与曲线、指标联动；motif 命中位置以描边标出。</p>
+      <p className="panel__hint">在序列上按住拖选，即可与曲线、指标联动；motif 命中位置以描边标出。键盘用户可先聚焦序列，再用方向键移动。</p>
 
-      <div className="seq-viewer" role="group" aria-label="DNA 序列">
+      <div
+        className="seq-viewer"
+        role="application"
+        tabIndex={0}
+        aria-label="DNA 序列，可用左右方向键移动选区，按住 Shift 扩展选区"
+        aria-describedby="sequence-keys"
+        onKeyDown={handleKeyDown}
+      >
+        <p id="sequence-keys" className="visually-hidden">
+          序列可用键盘操作：左右方向键移动选区，PageUp 和 PageDown 快速移动，Home 和 End 跳到两端，按住 Shift 扩展选区。
+        </p>
         {rows.length === 0 ? (
           <p className="empty">还没有序列。粘贴一段序列，或从示例开始。</p>
         ) : (

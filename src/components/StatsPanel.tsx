@@ -87,6 +87,13 @@ export function StatsPanel({ stats, selection }: Props) {
         ) : (
           <span className="muted">未选择 · 在下方曲线或序列上拖选</span>
         )}
+        {/* Keyboard selection changes happen without any visual cue a screen
+            reader would announce, so mirror the range into a live region. */}
+        <span className="visually-hidden" aria-live="polite">
+          {selection && selectionLength > 0
+            ? `已选择 ${formatInteger(selection.start)} 到 ${formatInteger(selection.end)}，共 ${formatInteger(selectionLength)} 个碱基`
+            : ''}
+        </span>
       </div>
     </section>
   )

@@ -97,7 +97,21 @@ npm run typecheck
 - **多记录 FASTA**：按出现顺序拼接，header 只保留第一条。
 - **长度上限**：序列 10,000 bp，motif 50 bp。超出部分会被截断并在界面上提示。
 
-核心算法集中在 `src/lib/sequence.ts`，单元测试共 43 个，覆盖上述规则以及会话存储的容错逻辑（`src/lib/sequence.test.ts`、`src/lib/storage.test.ts`）。
+核心算法集中在 `src/lib/sequence.ts`，单元测试共 61 个，覆盖上述规则、会话存储的容错逻辑以及键盘选区计算（`src/lib/sequence.test.ts`、`src/lib/storage.test.ts`、`src/lib/keyboard.test.ts`）。
+
+## 键盘操作
+
+曲线和序列视图都可以用键盘操作，不必依赖鼠标拖选：
+
+| 按键 | 作用 |
+| --- | --- |
+| `Tab` | 依次聚焦输入框、滑杆、曲线、序列视图等控件，焦点环为青色描边 |
+| `←` / `→` | 把选区向前/向后移动一个步长（曲线按窗口步长，序列按单个碱基） |
+| `Shift` + `←` / `→` | 扩展或收缩选区，而不是整体移动 |
+| `PageUp` / `PageDown` | 快速移动（曲线为 10 个步长） |
+| `Home` / `End` | 跳到序列开头 / 末尾 |
+
+选区变化会通过 `aria-live` 区域播报"已选择 X 到 Y，共 N 个碱基"，屏幕阅读器用户能听到当前位置。焦点环使用 `:focus-visible`，鼠标点击时不会闪现描边。
 
 ## 本地会话
 
@@ -120,7 +134,7 @@ seqlens/
 │  ├─ components/     Header、Hero、输入、组成、GC 曲线、序列视图、工具面板、方法/边界区
 │  ├─ data/examples.ts  4 个确定性合成示例（无真实研究数据）
 │  ├─ hooks/          useElementWidth（ResizeObserver 驱动响应式 SVG）、useSessionPersistence
-│  ├─ lib/            sequence.ts（核心算法）、storage.ts（会话读写）、download.ts、单元测试
+│  ├─ lib/            sequence.ts（核心算法）、storage.ts（会话读写）、keyboard.ts（键盘选区计算）、download.ts、单元测试
 │  ├─ App.tsx         状态编排：序列、选区、命中、窗口参数
 │  ├─ config.ts       应用名、标语、仓库地址
 │  └─ styles.css      深色主题的设计 token 与全部样式

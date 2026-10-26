@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { useElementWidth } from '../hooks/useElementWidth'
+import { isCursorKey, moveCursor } from '../lib/keyboard'
 import type { GcWindow } from '../lib/sequence'
 
 interface Props {
@@ -20,6 +21,9 @@ export function GcChart({ windows, length, selection, onSelect, windowSize, step
   const [hover, setHover] = useState<{ x: number; window: GcWindow } | null>(null)
   const dragAnchor = useRef<number | null>(null)
   const [dragging, setDragging] = useState(false)
+  // Keyboard cursor and Shift anchor, kept apart from the pointer drag state.
+  const keyCursor = useRef(0)
+  const keyAnchor = useRef<number | null>(null)
 
   const plotWidth = Math.max(0, width - PAD.left - PAD.right)
   const plotHeight = HEIGHT - PAD.top - PAD.bottom
@@ -77,6 +81,27 @@ export function GcChart({ windows, length, selection, onSelect, windowSize, step
 
   const meanY = PAD.top + plotHeight - (meanGc / 100) * plotHeight
 
+  // The chart is a spatial widget: pointer users drag a region, keyboard users
+  // move a cursor that selects one window at a time. Arrow keys step by the
+  // window step so every press lands on a plotted point.
+  const handleKeyDown = (event: React.KeyboardEvent<SVGSVGElement>) => {
+    if (!isCursorKey(event.key)) return
+    event.preventDefault()
+    const result = moveCursor({
+      length,
+      step: Math.max(1, step),
+      span: Math.max(1, windowSize),
+      key: event.key,
+      shift: event.shiftKey,
+      cursor: keyCursor.current,
+      anchor: keyAnchor.current,
+      selection,
+    })
+    keyCursor.current = result.cursor
+    keyAnchor.current = result.anchor
+    onSelect(result.selection)
+  }
+
   return (
     <section className="panel panel--chart" aria-labelledby="chart-title">
       <div className="panel__head">
@@ -89,6 +114,9 @@ export function GcChart({ windows, length, selection, onSelect, windowSize, step
       </div>
 
       <div className="chart-wrap" ref={ref}>
+        <p id="chart-keys" className="visually-hidden">
+          曲线可用键盘操作：左右方向键移动选区，PageUp 和 PageDown 快速移动，Home 和 End 跳到两端，按住 Shift 扩展选区。
+        </p>
         {windows.length === 0 ? (
           <p className="empty">序列太短，或尚未输入序列。</p>
         ) : (
@@ -97,8 +125,11 @@ export function GcChart({ windows, length, selection, onSelect, windowSize, step
             className="chart"
             width={Math.max(width, 320)}
             height={HEIGHT}
-            role="img"
-            aria-label={`滑窗 GC 含量曲线，共 ${windows.length} 个窗口，平均 GC ${meanGc.toFixed(1)}%`}
+            role="application"
+            tabIndex={0}
+            aria-label={`滑窗 GC 含量曲线，共 ${windows.length} 个窗口，平均 GC ${meanGc.toFixed(1)}%。用左右方向键移动选区，按住 Shift 可扩展选区。`}
+            aria-describedby="chart-keys"
+            onKeyDown={handleKeyDown}
             onPointerDown={(event) => {
               const position = xToPosition(event.clientX)
               dragAnchor.current = position

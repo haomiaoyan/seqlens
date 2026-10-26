@@ -39,11 +39,16 @@ export function SequenceInput({ raw, onRawChange, parsed, onLoadExample, onClear
         </div>
       </div>
 
+      {/* The visible "打开文件" button triggers this input, so it must not be a
+          separate tab stop — a focusable but invisible control is unreachable
+          for sighted keyboard users. It still needs a name for screen readers. */}
       <input
         ref={fileRef}
         type="file"
         accept=".fa,.fasta,.fna,.txt,text/plain"
         className="visually-hidden"
+        aria-label="选择序列文件"
+        tabIndex={-1}
         onChange={(event) => {
           void handleFile(event.target.files?.[0])
           event.target.value = ''

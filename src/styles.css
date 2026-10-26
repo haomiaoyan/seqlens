@@ -519,6 +519,14 @@ input[type='range'] {
   cursor: pointer;
 }
 
+/* The range input removes the native outline above, so restore a visible ring
+   for keyboard users only — pointer clicks should not flash a ring. */
+input[type='range']:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -952,6 +960,13 @@ input[type='range']::-moz-range-thumb {
   display: block;
   touch-action: none;
   cursor: crosshair;
+  border-radius: var(--radius-sm);
+}
+
+.chart:focus-visible,
+.seq-viewer:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .grid-line {
