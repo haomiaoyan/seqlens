@@ -32,6 +32,11 @@ jobs:
       - run: npm run build
 
       - uses: actions/configure-pages@v5
+        with:
+          # Auto-enable Pages (source: GitHub Actions) on the first run, so the
+          # deploy does not fail on a freshly created repository. Idempotent once
+          # Pages is already configured.
+          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:
