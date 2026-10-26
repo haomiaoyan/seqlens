@@ -127,6 +127,26 @@ textarea {
 }
 
 /* ==========================================================================
+   Focus
+   ========================================================================== */
+
+/* Every interactive control gets a ring. Written as one rule early in the
+   sheet rather than per component, so a new button, chip or tab cannot ship
+   without one. Components that need a different offset (the chart and sequence
+   surfaces are large targets) re-declare it later and win by source order. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* ==========================================================================
    Buttons
    ========================================================================== */
 
@@ -1090,8 +1110,8 @@ input[type='range']::-moz-range-thumb {
   width: 52px;
   flex-shrink: 0;
   text-align: right;
-  font-size: 10px;
-  color: #4d5c74;
+  font-size: 11px;
+  color: #7d8ea8;
   user-select: none;
 }
 

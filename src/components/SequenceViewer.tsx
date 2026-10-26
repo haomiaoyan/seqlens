@@ -1,8 +1,30 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isCursorKey, moveCursor } from '../lib/keyboard'
+import { INITIAL_METRICS, columnsFor, type Metrics } from '../lib/row-layout'
 import { chunkSequence, type MotifMatch } from '../lib/sequence'
 
-const ROW_WIDTH = 60
+/**
+ * Reads the geometry the stylesheet actually applied instead of duplicating its
+ * numbers in JavaScript, so the breakpoint that shrinks `.base` and the gutter
+ * can never drift out of sync with the column count.
+ */
+function measure(root: HTMLElement): Metrics | null {
+  const row = root.querySelector<HTMLElement>('.seq-row')
+  const cell = root.querySelector<HTMLElement>('.base')
+  const gutter = root.querySelector<HTMLElement>('.seq-row__offset')
+  const bases = root.querySelector<HTMLElement>('.seq-row__bases')
+  if (!row || !cell || !gutter || !bases) return null
+
+  const gap = Number.parseFloat(getComputedStyle(bases).columnGap) || 0
+  const rowGap = Number.parseFloat(getComputedStyle(row).columnGap) || 0
+  const pitch = cell.getBoundingClientRect().width + gap
+  const leading = gutter.getBoundingClientRect().width + rowGap
+  const styles = getComputedStyle(root)
+  const padding = Number.parseFloat(styles.paddingLeft) + Number.parseFloat(styles.paddingRight)
+  if (!(pitch > 0) || !(leading >= 0)) return null
+
+  return { pitch, leading, available: Math.max(0, root.clientWidth - padding) }
+}
 
 interface Props {
   sequence: string
@@ -51,7 +73,7 @@ const Row = memo(function Row({
 
   return (
     <div className="seq-row">
-      <span className="seq-row__offset mono">{offset + 1}</span>
+      <span className="seq-row__offset mono">{offset}</span>
       <span
         className="seq-row__bases"
         onPointerDown={(event) => {
@@ -74,11 +96,41 @@ const Row = memo(function Row({
 })
 
 export function SequenceViewer({ sequence, selection, onSelect, matches, showMatches }: Props) {
-  const rows = chunkSequence(sequence, ROW_WIDTH)
+  const rootRef = useRef<HTMLDivElement | null>(null)
+  const [metrics, setMetrics] = useState<Metrics>(INITIAL_METRICS)
   const dragAnchor = useRef<number | null>(null)
   const [dragging, setDragging] = useState(false)
   const keyCursor = useRef(0)
   const keyAnchor = useRef<number | null>(null)
+
+  // Geometry is read from the rendered DOM, so it can only be sampled once a
+  // row exists — and must be re-sampled whenever a breakpoint resizes the
+  // cells. One ResizeObserver covers both: it fires on observe (first sequence
+  // arriving) and on every later size change (window resize, panel reflow).
+  const hasSequence = sequence.length > 0
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root || !hasSequence) return
+
+    const sample = () => {
+      const next = measure(root)
+      if (!next) return
+      setMetrics((current) =>
+        Math.abs(current.pitch - next.pitch) < 0.01 &&
+        Math.abs(current.leading - next.leading) < 0.01 &&
+        Math.abs(current.available - next.available) < 0.5
+          ? current
+          : next,
+      )
+    }
+
+    const observer = new ResizeObserver(sample)
+    observer.observe(root)
+    return () => observer.disconnect()
+  }, [hasSequence])
+
+  const columns = useMemo(() => columnsFor(metrics), [metrics])
+  const rows = useMemo(() => chunkSequence(sequence, columns), [sequence, columns])
 
   const highlighted = new Set<number>()
   if (showMatches) {
@@ -162,6 +214,7 @@ export function SequenceViewer({ sequence, selection, onSelect, matches, showMat
 
       <div
         className="seq-viewer"
+        ref={rootRef}
         role="application"
         tabIndex={0}
         aria-label="DNA 序列，可用左右方向键移动选区，按住 Shift 扩展选区"
