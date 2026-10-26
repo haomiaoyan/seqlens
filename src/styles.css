@@ -446,6 +446,39 @@ textarea {
   font-size: 13px;
 }
 
+/* Session persistence status: quiet, one line, never shifts the layout. */
+.session-note {
+  min-height: 18px;
+  margin-top: 4px !important;
+  font-size: 11.5px;
+}
+
+.session-note__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-mute);
+}
+
+.session-note__item--dim {
+  color: var(--text-mute);
+  opacity: 0.85;
+}
+
+.session-note__hint {
+  color: rgba(111, 129, 158, 0.7);
+}
+
+.session-note__hint::before {
+  content: '·';
+  margin-right: 6px;
+}
+
+.session-note .dot {
+  background: var(--accent);
+  opacity: 0.75;
+}
+
 .param-controls {
   display: flex;
   gap: 22px;

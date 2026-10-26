@@ -24,6 +24,7 @@ SeqLens 是一个**本地优先**的 DNA 序列可视化学习工具。粘贴 FA
 | 双向联动 | 拖选曲线 ↔ 高亮序列；点击命中芯片 ↔ 跳到对应碱基 |
 | 反向互补 | A↔T、C↔G、N 保持不变、顺序反转，可复制或导出 FASTA |
 | Motif 匹配 | 精确子串匹配，支持重叠开关与正/反链同时搜索，结果可导出 TSV |
+| 会话保留 | 序列与窗口参数自动存在本机浏览器，刷新后接着用；不联网、不上传 |
 
 ![工作台](docs/workbench.png)
 
@@ -96,7 +97,19 @@ npm run typecheck
 - **多记录 FASTA**：按出现顺序拼接，header 只保留第一条。
 - **长度上限**：序列 10,000 bp，motif 50 bp。超出部分会被截断并在界面上提示。
 
-核心算法集中在 `src/lib/sequence.ts`，22 个单元测试覆盖了上述规则（`src/lib/sequence.test.ts`）。
+核心算法集中在 `src/lib/sequence.ts`，单元测试共 43 个，覆盖上述规则以及会话存储的容错逻辑（`src/lib/sequence.test.ts`、`src/lib/storage.test.ts`）。
+
+## 本地会话
+
+工作台的内容会自动存进浏览器 `localStorage`（键名 `seqlens.session.v1`），刷新或关掉标签页再回来，序列和窗口参数都还在。写操作做了 500 ms 防抖，只存四个字段：原始输入、窗口大小、步长、当前示例 id。
+
+几点行为值得知道：
+
+- 数据**只存在这台设备的这个浏览器**里，不上传任何地方，换设备或换浏览器不会同步。
+- 浏览器禁用存储（如 Safari 无痕模式）时，界面会提示"本次内容不会自动保存"，功能其余部分不受影响。
+- 首次访问、且没有输入任何内容时不会写空存档，所以不会出现"已恢复上次会话"的误报。
+- 点「清空」会同时删掉存档。
+- 想手动清除：浏览器开发者工具里执行 `localStorage.removeItem('seqlens.session.v1')`。
 
 ## 项目结构
 
@@ -105,8 +118,8 @@ seqlens/
 ├─ src/
 │  ├─ components/     Header、Hero、输入、组成、GC 曲线、序列视图、工具面板、方法/边界区
 │  ├─ data/examples.ts  4 个确定性合成示例（无真实研究数据）
-│  ├─ hooks/          useElementWidth（ResizeObserver 驱动响应式 SVG）
-│  ├─ lib/            sequence.ts（核心算法）、download.ts、单元测试
+│  ├─ hooks/          useElementWidth（ResizeObserver 驱动响应式 SVG）、useSessionPersistence
+│  ├─ lib/            sequence.ts（核心算法）、storage.ts（会话读写）、download.ts、单元测试
 │  ├─ App.tsx         状态编排：序列、选区、命中、窗口参数
 │  ├─ config.ts       应用名、标语、仓库地址
 │  └─ styles.css      深色主题的设计 token 与全部样式

@@ -10,3 +10,4 @@ coverage
 *.log
 *.tmpdir/
 *.tmp
+.verify

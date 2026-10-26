@@ -8,7 +8,9 @@ import { GcChart } from './components/GcChart'
 import { ToolsPanel } from './components/ToolsPanel'
 import { Footer, LimitsSection, MethodSection } from './components/Sections'
 import { EXAMPLES } from './data/examples'
+import { readSavedSession, useSessionPersistence } from './hooks/useSessionPersistence'
 import { baseStats, gcWindows, parseSequence, type MotifMatch } from './lib/sequence'
+import { MAX_STEP, MAX_WINDOW_SIZE } from './lib/storage'
 
 interface Selection {
   start: number
@@ -16,12 +18,16 @@ interface Selection {
 }
 
 export default function App() {
-  const [raw, setRaw] = useState('')
-  const [activeExample, setActiveExample] = useState<string | null>(null)
+  // Read the saved session once, before the first paint, so restored values do
+  // not flash as defaults first. `useState` with a lazy initializer runs once.
+  const [restored] = useState(() => readSavedSession())
+
+  const [raw, setRaw] = useState(restored?.raw ?? '')
+  const [activeExample, setActiveExample] = useState<string | null>(restored?.activeExample ?? null)
   const [selection, setSelection] = useState<Selection | null>(null)
   const [matches, setMatches] = useState<MotifMatch[]>([])
-  const [windowSize, setWindowSize] = useState(60)
-  const [step, setStep] = useState(10)
+  const [windowSize, setWindowSize] = useState(restored?.windowSize ?? 60)
+  const [step, setStep] = useState(restored?.step ?? 10)
   const workbenchRef = useRef<HTMLElement | null>(null)
 
   const parsed = useMemo(() => parseSequence(raw), [raw])
@@ -29,13 +35,30 @@ export default function App() {
   const stats = useMemo(() => baseStats(sequence), [sequence])
   const windows = useMemo(() => gcWindows(sequence, windowSize, step), [sequence, windowSize, step])
 
+  const persistence = useSessionPersistence({
+    raw,
+    windowSize,
+    step,
+    activeExample,
+    enabled: true,
+    restored: restored !== null,
+  })
+  const { markRestored, forget } = persistence
+
   // Drop stale selections and motif highlights when the sequence changes.
   useEffect(() => {
     setSelection(null)
     setMatches([])
   }, [sequence])
 
+  // Surface the "restored from last visit" hint only when something was actually
+  // recovered, so a first-time visitor sees the normal copy.
+  useEffect(() => {
+    if (restored) markRestored()
+  }, [restored, markRestored])
+
   // Deep link support: ?example=promoter loads a bundled demo on first paint.
+  // It wins over a restored session, since the link is an explicit request.
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get('example')
     if (!requested) return
@@ -54,7 +77,18 @@ export default function App() {
     })
   }, [])
 
-  const effectiveStep = Math.min(step, Math.max(1, windowSize))
+  // A stored window can be larger than the current sequence (localStorage is
+  // restored before any sequence exists, and sequences can be cleared or
+  // shortened). Derive one clamped value and use it for the label, the slider
+  // and the computation alike, so the three can never disagree.
+  // The window slider moves in steps of 5 from min 5, so the upper bound is
+  // snapped down to that grid; otherwise the browser would render a different
+  // number than the label.
+  const rawWindowMax = Math.max(10, Math.min(MAX_WINDOW_SIZE, sequence.length || MAX_WINDOW_SIZE))
+  const windowMax = Math.max(5, Math.floor(rawWindowMax / 5) * 5)
+  const stepMax = Math.max(2, Math.min(MAX_STEP, sequence.length || MAX_STEP))
+  const effectiveWindow = Math.min(windowSize, windowMax)
+  const effectiveStep = Math.min(step, stepMax, Math.max(1, effectiveWindow))
 
   function loadExample(id: string) {
     const example = EXAMPLES.find((item) => item.id === id)
@@ -73,7 +107,11 @@ export default function App() {
   function clearAll() {
     setRaw('')
     setActiveExample(null)
+    forget()
   }
+
+  const restoredLabel =
+    persistence.state === 'restored' ? '已恢复上次会话' : persistence.state === 'saved' ? '已自动保存' : null
 
   return (
     <div className="app">
@@ -90,19 +128,34 @@ export default function App() {
                   ? `当前示例：${EXAMPLES.find((item) => item.id === activeExample)?.name ?? ''}`
                   : '粘贴序列或载入示例，所有计算在本地完成。'}
               </p>
+              <p className="session-note" aria-live="polite">
+                {persistence.state === 'unavailable' ? (
+                  <span className="session-note__item session-note__item--dim">
+                    浏览器禁用了本地存储，本次内容不会自动保存
+                  </span>
+                ) : (
+                  restoredLabel && (
+                    <span className="session-note__item">
+                      <span className="dot" aria-hidden="true" />
+                      {restoredLabel}
+                      <span className="session-note__hint">仅存在这台设备上</span>
+                    </span>
+                  )
+                )}
+              </p>
             </div>
 
             <div className="param-controls">
               <label className="param">
                 <span className="param__label">
-                  窗口 <span className="mono">{windowSize}</span>
+                  窗口 <span className="mono">{effectiveWindow}</span>
                 </span>
                 <input
                   type="range"
                   min={5}
-                  max={Math.max(10, Math.min(500, sequence.length || 500))}
+                  max={windowMax}
                   step={5}
-                  value={Math.min(windowSize, Math.max(10, Math.min(500, sequence.length || 500)))}
+                  value={effectiveWindow}
                   onChange={(event) => setWindowSize(Number(event.target.value))}
                 />
               </label>
@@ -113,7 +166,7 @@ export default function App() {
                 <input
                   type="range"
                   min={1}
-                  max={Math.max(2, Math.min(200, sequence.length || 200))}
+                  max={stepMax}
                   step={1}
                   value={effectiveStep}
                   onChange={(event) => setStep(Number(event.target.value))}
@@ -143,7 +196,7 @@ export default function App() {
                 length={sequence.length}
                 selection={selection}
                 onSelect={setSelection}
-                windowSize={windowSize}
+                windowSize={effectiveWindow}
                 step={effectiveStep}
               />
               <SequenceViewer
