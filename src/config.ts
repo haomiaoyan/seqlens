@@ -3,7 +3,7 @@ export const APP_NAME = 'SeqLens'
 export const APP_TAGLINE = '把一段 DNA 序列，变成一张可以探索的图。'
 
 /** Replace with your repository URL before publishing. */
-export const GITHUB_URL = 'https://github.com/your-name/seqlens'
+export const GITHUB_URL = 'https://github.com/haomiaoyan/seqlens'
 
 export const BASE_COLORS: Record<string, string> = {
   A: 'var(--base-a)',
