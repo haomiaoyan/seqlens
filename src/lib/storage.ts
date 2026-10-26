@@ -74,7 +74,9 @@ export function loadSession(storage: StorageLike | null): Session | null {
   if (typeof record.raw !== 'string') return null
 
   const activeExample =
-    typeof record.activeExample === 'string' && record.activeExample.length > 0 ? record.activeExample : null
+    typeof record.activeExample === 'string' && record.activeExample.length > 0
+      ? record.activeExample
+      : null
 
   // An empty payload carries no information, so treat it as "nothing saved".
   // This keeps a cleared session from being reported as a restored one.

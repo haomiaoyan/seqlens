@@ -73,7 +73,8 @@ export function moveCursor(input: CursorInput): CursorResult {
 
   const selStart = input.selection?.start ?? null
   const selEnd = input.selection?.end ?? null
-  const cursorInsideSelection = selStart !== null && input.cursor >= selStart && input.cursor < (selEnd as number)
+  const cursorInsideSelection =
+    selStart !== null && input.cursor >= selStart && input.cursor < (selEnd as number)
   const base = cursorInsideSelection ? input.cursor : (selStart ?? 0)
 
   const page = input.pageSize ?? input.step * 10

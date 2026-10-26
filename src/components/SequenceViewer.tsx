@@ -22,7 +22,14 @@ interface RowProps {
   onDragMove: (index: number) => void
 }
 
-const Row = memo(function Row({ offset, text, selection, highlighted, onDragStart, onDragMove }: RowProps) {
+const Row = memo(function Row({
+  offset,
+  text,
+  selection,
+  highlighted,
+  onDragStart,
+  onDragMove,
+}: RowProps) {
   const chars: JSX.Element[] = []
   for (let i = 0; i < text.length; i += 1) {
     const index = offset + i
@@ -45,17 +52,21 @@ const Row = memo(function Row({ offset, text, selection, highlighted, onDragStar
   return (
     <div className="seq-row">
       <span className="seq-row__offset mono">{offset + 1}</span>
-      <span className="seq-row__bases" onPointerDown={(event) => {
-        const target = (event.target as HTMLElement).closest('[data-index]') as HTMLElement | null
-        if (!target) return
-        event.preventDefault()
-        onDragStart(Number(target.dataset.index))
-      }} onPointerMove={(event) => {
-        if (!(event.buttons & 1)) return
-        const target = (event.target as HTMLElement).closest('[data-index]') as HTMLElement | null
-        if (!target) return
-        onDragMove(Number(target.dataset.index))
-      }}>
+      <span
+        className="seq-row__bases"
+        onPointerDown={(event) => {
+          const target = (event.target as HTMLElement).closest('[data-index]') as HTMLElement | null
+          if (!target) return
+          event.preventDefault()
+          onDragStart(Number(target.dataset.index))
+        }}
+        onPointerMove={(event) => {
+          if (!(event.buttons & 1)) return
+          const target = (event.target as HTMLElement).closest('[data-index]') as HTMLElement | null
+          if (!target) return
+          onDragMove(Number(target.dataset.index))
+        }}
+      >
         {chars}
       </span>
     </div>
@@ -136,11 +147,7 @@ export function SequenceViewer({ sequence, selection, onSelect, matches, showMat
         </h2>
         <div className="panel__head-actions">
           {selection && (
-            <button
-              type="button"
-              className="btn btn--ghost btn--sm"
-              onClick={() => onSelect(null)}
-            >
+            <button type="button" className="btn btn--ghost btn--sm" onClick={() => onSelect(null)}>
               取消选区
             </button>
           )}
@@ -148,7 +155,10 @@ export function SequenceViewer({ sequence, selection, onSelect, matches, showMat
         </div>
       </div>
 
-      <p className="panel__hint">在序列上按住拖选，即可与曲线、指标联动；motif 命中位置以描边标出。键盘用户可先聚焦序列，再用方向键移动。</p>
+      <p className="panel__hint">
+        在序列上按住拖选，即可与曲线、指标联动；motif
+        命中位置以描边标出。键盘用户可先聚焦序列，再用方向键移动。
+      </p>
 
       <div
         className="seq-viewer"
@@ -159,7 +169,8 @@ export function SequenceViewer({ sequence, selection, onSelect, matches, showMat
         onKeyDown={handleKeyDown}
       >
         <p id="sequence-keys" className="visually-hidden">
-          序列可用键盘操作：左右方向键移动选区，PageUp 和 PageDown 快速移动，Home 和 End 跳到两端，按住 Shift 扩展选区。
+          序列可用键盘操作：左右方向键移动选区，PageUp 和 PageDown 快速移动，Home 和 End
+          跳到两端，按住 Shift 扩展选区。
         </p>
         {rows.length === 0 ? (
           <p className="empty">还没有序列。粘贴一段序列，或从示例开始。</p>

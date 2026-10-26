@@ -237,7 +237,9 @@ export function findMotif(sequence: string, motif: string, options: MotifOptions
   scan(target, '+')
   if (options.bothStrands) scan(reverseComplement(target), '-')
 
-  matches.sort((a, b) => a.start - b.start || (a.strand === b.strand ? 0 : a.strand === '+' ? -1 : 1))
+  matches.sort(
+    (a, b) => a.start - b.start || (a.strand === b.strand ? 0 : a.strand === '+' ? -1 : 1),
+  )
   return matches
 }
 

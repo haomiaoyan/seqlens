@@ -1,0 +1,9 @@
+dist
+node_modules
+package-lock.json
+.verify
+public/og.png
+# Prettier pads tables by code-point count, but CJK characters are double-width,
+# so reformatting the README's tables makes them render misaligned. Keep prose
+# out of the formatter and edit it by hand.
+*.md

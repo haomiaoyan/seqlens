@@ -30,7 +30,14 @@ const DEBOUNCE_MS = 500
  * 10 kb sequence would otherwise be serialized on each one. Reads happen once,
  * by the caller, so the first paint already has the restored values.
  */
-export function useSessionPersistence({ raw, windowSize, step, activeExample, enabled, restored }: Options) {
+export function useSessionPersistence({
+  raw,
+  windowSize,
+  step,
+  activeExample,
+  enabled,
+  restored,
+}: Options) {
   const [storage] = useState<StorageLike | null>(() => getBrowserStorage())
   const [state, setState] = useState<PersistenceState>(() => (storage ? 'idle' : 'unavailable'))
   // Seed the "already on disk" marker with the restored payload on the very

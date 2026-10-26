@@ -65,12 +65,18 @@ npm run build    # tsc 类型检查 + vite 构建，产物在 dist/
 npm run preview  # 预览 dist/，默认 http://localhost:4173
 ```
 
-运行测试与类型检查：
+运行测试、类型检查、lint 与格式检查：
 
 ```bash
-npm test
-npm run typecheck
+npm test            # Vitest 单元测试
+npm run typecheck   # tsc --noEmit
+npm run lint        # ESLint
+npm run format:check # Prettier 只检查不改写
+npm run format      # Prettier 改写
+npm run check       # 以上全部串起来跑一遍，CI 同款
 ```
+
+`npm run check` 是提交前最省事的自检：类型、lint、格式、单测任一不过都会报错退出。
 
 ## 部署到 GitHub Pages
 
@@ -131,7 +137,7 @@ npm run typecheck
 ```
 seqlens/
 ├─ src/
-│  ├─ components/     Header、Hero、输入、组成、GC 曲线、序列视图、工具面板、方法/边界区
+│  ├─ components/     Header、Hero、输入、组成、GC 曲线、序列视图、工具面板、方法/边界区、ErrorBoundary
 │  ├─ data/examples.ts  4 个确定性合成示例（无真实研究数据）
 │  ├─ hooks/          useElementWidth（ResizeObserver 驱动响应式 SVG）、useSessionPersistence
 │  ├─ lib/            sequence.ts（核心算法）、storage.ts（会话读写）、keyboard.ts（键盘选区计算）、download.ts、单元测试
@@ -139,10 +145,13 @@ seqlens/
 │  ├─ config.ts       应用名、标语、仓库地址
 │  └─ styles.css      深色主题的设计 token 与全部样式
 ├─ docs/              README 用的截图
+├─ public/og.png      社交平台预览图（1200×630）
 └─ .github/workflows/ GitHub Pages 自动部署
 ```
 
-技术栈：Vite 6 + React 18 + TypeScript 5.6 + Vitest 2。图表是手写 SVG，没有引入图表库。
+技术栈：Vite 6 + React 18 + TypeScript 5.6 + Vitest 2。图表是手写 SVG，没有引入图表库。代码风格由 ESLint（`typescript-eslint` + `eslint-plugin-react-hooks`）与 Prettier 统一，格式规则见 `.prettierrc.json`。
+
+提交前请跑 `npm run check`；CI 会在每次 push 到 `main` 时执行同样的检查，不通过就不会部署。
 
 ## 示例数据
 

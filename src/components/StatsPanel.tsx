@@ -72,7 +72,9 @@ export function StatsPanel({ stats, selection }: Props) {
             <span className="base-legend__name">{base}</span>
             <span className="mono base-legend__value">{formatInteger(stats.counts[base])}</span>
             <span className="mono base-legend__pct">
-              {stats.length === 0 ? '—' : `${((stats.counts[base] / stats.length) * 100).toFixed(1)}%`}
+              {stats.length === 0
+                ? '—'
+                : `${((stats.counts[base] / stats.length) * 100).toFixed(1)}%`}
             </span>
           </li>
         ))}
@@ -82,7 +84,8 @@ export function StatsPanel({ stats, selection }: Props) {
         <span className="selection-box__label">当前选区</span>
         {selection && selectionLength > 0 ? (
           <span className="mono selection-box__value">
-            [{formatInteger(selection.start)}, {formatInteger(selection.end)}) · {formatInteger(selectionLength)} bp
+            [{formatInteger(selection.start)}, {formatInteger(selection.end)}) ·{' '}
+            {formatInteger(selectionLength)} bp
           </span>
         ) : (
           <span className="muted">未选择 · 在下方曲线或序列上拖选</span>

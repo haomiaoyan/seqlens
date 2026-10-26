@@ -7,6 +7,7 @@ import { SequenceViewer } from './components/SequenceViewer'
 import { GcChart } from './components/GcChart'
 import { ToolsPanel } from './components/ToolsPanel'
 import { Footer, LimitsSection, MethodSection } from './components/Sections'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { EXAMPLES } from './data/examples'
 import { readSavedSession, useSessionPersistence } from './hooks/useSessionPersistence'
 import { baseStats, gcWindows, parseSequence, type MotifMatch } from './lib/sequence'
@@ -33,10 +34,30 @@ export default function App() {
   })
   const [deepLinkPristine, setDeepLinkPristine] = useState(deepLinkId !== null && restored !== null)
 
-  const [raw, setRaw] = useState(restored?.raw ?? '')
-  const [activeExample, setActiveExample] = useState<string | null>(restored?.activeExample ?? null)
-  const [selection, setSelection] = useState<Selection | null>(null)
-  const [matches, setMatches] = useState<MotifMatch[]>([])
+  // A deep-linked example is the initial value, not something to apply in an
+  // effect: deriving it here means the first paint already shows the example,
+  // with no extra render pass.
+  const [raw, setRaw] = useState(() => {
+    const example = deepLinkId ? EXAMPLES.find((item) => item.id === deepLinkId) : undefined
+    return example ? example.fasta : (restored?.raw ?? '')
+  })
+  const [activeExample, setActiveExample] = useState<string | null>(
+    () => deepLinkId ?? restored?.activeExample ?? null,
+  )
+
+  // Selection and motif hits are only meaningful for the sequence they were
+  // computed on. Tagging each with its sequence lets us discard stale values by
+  // deriving them, instead of clearing them from an effect (which would cost an
+  // extra render and can briefly show coordinates that no longer exist).
+  const [selectionState, setSelectionState] = useState<{
+    sequence: string
+    value: Selection | null
+  }>({ sequence: '', value: null })
+  const [matchState, setMatchState] = useState<{ sequence: string; matches: MotifMatch[] }>({
+    sequence: '',
+    matches: [],
+  })
+
   const [windowSize, setWindowSize] = useState(restored?.windowSize ?? 60)
   const [step, setStep] = useState(restored?.step ?? 10)
   const workbenchRef = useRef<HTMLElement | null>(null)
@@ -45,6 +66,12 @@ export default function App() {
   const sequence = parsed.sequence
   const stats = useMemo(() => baseStats(sequence), [sequence])
   const windows = useMemo(() => gcWindows(sequence, windowSize, step), [sequence, windowSize, step])
+
+  const selection = selectionState.sequence === sequence ? selectionState.value : null
+  const matches = matchState.sequence === sequence ? matchState.matches : []
+
+  const setSelection = (value: Selection | null) => setSelectionState({ sequence, value })
+  const setMatches = (next: MotifMatch[]) => setMatchState({ sequence, matches: next })
 
   const persistence = useSessionPersistence({
     raw,
@@ -58,29 +85,11 @@ export default function App() {
   })
   const { markRestored, forget } = persistence
 
-  // Drop stale selections and motif highlights when the sequence changes.
-  useEffect(() => {
-    setSelection(null)
-    setMatches([])
-  }, [sequence])
-
   // Surface the "restored from last visit" hint only when something was actually
   // recovered, so a first-time visitor sees the normal copy.
   useEffect(() => {
     if (restored) markRestored()
   }, [restored, markRestored])
-
-  // Deep link support: ?example=promoter loads a bundled demo on first paint.
-  // It wins over a restored session on screen, since the link is an explicit
-  // request — but see `deepLinkPristine`: it is not persisted until the visitor
-  // interacts, so opening a shared link cannot wipe their own work.
-  useEffect(() => {
-    if (!deepLinkId) return
-    const example = EXAMPLES.find((item) => item.id === deepLinkId)
-    if (!example) return
-    setRaw(example.fasta)
-    setActiveExample(example.id)
-  }, [deepLinkId])
 
   // Re-apply the URL hash once React has rendered the target sections.
   useEffect(() => {
@@ -127,7 +136,11 @@ export default function App() {
   }
 
   const restoredLabel =
-    persistence.state === 'restored' ? '已恢复上次会话' : persistence.state === 'saved' ? '已自动保存' : null
+    persistence.state === 'restored'
+      ? '已恢复上次会话'
+      : persistence.state === 'saved'
+        ? '已自动保存'
+        : null
 
   return (
     <div className="app">
@@ -135,7 +148,12 @@ export default function App() {
       <main>
         <Hero onStart={startWithExample} sequenceLength={sequence.length} />
 
-        <section className="workbench" id="workbench" ref={workbenchRef} aria-labelledby="workbench-title">
+        <section
+          className="workbench"
+          id="workbench"
+          ref={workbenchRef}
+          aria-labelledby="workbench-title"
+        >
           <div className="workbench__head">
             <div>
               <h2 id="workbench-title">工作台</h2>
@@ -197,45 +215,57 @@ export default function App() {
 
           <div className="workbench__grid">
             <div className="workbench__col workbench__col--left">
-              <SequenceInput
-                raw={raw}
-                onRawChange={(value) => {
-                  setDeepLinkPristine(false)
-                  setRaw(value)
-                  setActiveExample(null)
-                }}
-                parsed={parsed}
-                onLoadExample={loadExample}
-                onClear={clearAll}
-              />
-              <StatsPanel stats={stats} selection={selection} />
+              <ErrorBoundary label="输入面板" inline resetKey={sequence.length}>
+                <SequenceInput
+                  raw={raw}
+                  onRawChange={(value) => {
+                    setDeepLinkPristine(false)
+                    setRaw(value)
+                    setActiveExample(null)
+                  }}
+                  parsed={parsed}
+                  onLoadExample={loadExample}
+                  onClear={clearAll}
+                />
+              </ErrorBoundary>
+              <ErrorBoundary label="碱基组成" inline resetKey={sequence.length}>
+                <StatsPanel stats={stats} selection={selection} />
+              </ErrorBoundary>
             </div>
 
             <div className="workbench__col workbench__col--right">
-              <GcChart
-                windows={windows}
-                length={sequence.length}
-                selection={selection}
-                onSelect={setSelection}
-                windowSize={effectiveWindow}
-                step={effectiveStep}
-              />
-              <SequenceViewer
-                sequence={sequence}
-                selection={selection}
-                onSelect={setSelection}
-                matches={matches}
-                showMatches={matches.length > 0}
-              />
-              <ToolsPanel
-                sequence={sequence}
-                onMatchesChange={setMatches}
-                selection={selection}
-                onFocus={(start, end) => {
-                  setSelection({ start, end })
-                  document.getElementById('sequence-title')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                }}
-              />
+              <ErrorBoundary label="GC 曲线" inline resetKey={sequence.length}>
+                <GcChart
+                  windows={windows}
+                  length={sequence.length}
+                  selection={selection}
+                  onSelect={setSelection}
+                  windowSize={effectiveWindow}
+                  step={effectiveStep}
+                />
+              </ErrorBoundary>
+              <ErrorBoundary label="序列视图" inline resetKey={sequence.length}>
+                <SequenceViewer
+                  sequence={sequence}
+                  selection={selection}
+                  onSelect={setSelection}
+                  matches={matches}
+                  showMatches={matches.length > 0}
+                />
+              </ErrorBoundary>
+              <ErrorBoundary label="工具面板" inline resetKey={sequence.length}>
+                <ToolsPanel
+                  sequence={sequence}
+                  onMatchesChange={setMatches}
+                  selection={selection}
+                  onFocus={(start, end) => {
+                    setSelection({ start, end })
+                    document
+                      .getElementById('sequence-title')
+                      ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                  }}
+                />
+              </ErrorBoundary>
             </div>
           </div>
         </section>

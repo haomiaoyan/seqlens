@@ -1,4 +1,4 @@
-import { APP_NAME, APP_TAGLINE } from '../config'
+import { APP_NAME } from '../config'
 
 interface Props {
   onStart: () => void
@@ -49,7 +49,15 @@ export function Hero({ onStart, sequenceLength }: Props) {
         <div className="hero__actions">
           <button type="button" className="btn btn--primary btn--lg" onClick={onStart}>
             载入示例，开始探索
-            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <svg
+              viewBox="0 0 16 16"
+              width="16"
+              height="16"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+            >
               <path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>

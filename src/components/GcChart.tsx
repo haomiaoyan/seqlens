@@ -35,10 +35,7 @@ export function GcChart({ windows, length, selection, onSelect, windowSize, step
       // Index-based spacing would stretch the curve to the full width and make
       // drag selections land on the wrong bases.
       const center = (w.start + w.end) / 2
-      const x =
-        length > 0
-          ? PAD.left + (center / length) * plotWidth
-          : PAD.left + plotWidth / 2
+      const x = length > 0 ? PAD.left + (center / length) * plotWidth : PAD.left + plotWidth / 2
       const y = PAD.top + plotHeight - (w.gc / 100) * plotHeight
       return { x, y, center, gc: w.gc, index: i, window: w }
     })
@@ -47,19 +44,18 @@ export function GcChart({ windows, length, selection, onSelect, windowSize, step
   const areaPath = useMemo(() => {
     if (points.length === 0) return ''
     const baseline = PAD.top + plotHeight
-    const line = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ')
+    const line = points
+      .map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`)
+      .join(' ')
     return `${line} L${points[points.length - 1].x.toFixed(2)},${baseline} L${points[0].x.toFixed(2)},${baseline} Z`
   }, [points, plotHeight])
 
   const linePath = useMemo(() => {
     if (points.length === 0) return ''
-    return points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ')
+    return points
+      .map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`)
+      .join(' ')
   }, [points])
-
-  const positionToX = (position: number) => {
-    if (length <= 0) return PAD.left
-    return PAD.left + (position / length) * plotWidth
-  }
 
   const xToPosition = (clientX: number) => {
     const rect = svgRef.current?.getBoundingClientRect()
@@ -70,14 +66,16 @@ export function GcChart({ windows, length, selection, onSelect, windowSize, step
 
   const selectionRect = useMemo(() => {
     if (!selection || length === 0) return null
-    const x1 = positionToX(selection.start)
-    const x2 = positionToX(selection.end)
+    // Computed inline rather than through a helper: a helper defined in the
+    // component body is a new function each render, so depending on it would
+    // make this memo recompute every time and defeat its purpose.
+    const toX = (position: number) => PAD.left + (position / length) * plotWidth
+    const x1 = toX(selection.start)
+    const x2 = toX(selection.end)
     return { x: Math.min(x1, x2), width: Math.abs(x2 - x1) }
   }, [selection, length, plotWidth])
 
-  const meanGc = windows.length
-    ? windows.reduce((sum, w) => sum + w.gc, 0) / windows.length
-    : 0
+  const meanGc = windows.length ? windows.reduce((sum, w) => sum + w.gc, 0) / windows.length : 0
 
   const meanY = PAD.top + plotHeight - (meanGc / 100) * plotHeight
 
@@ -115,7 +113,8 @@ export function GcChart({ windows, length, selection, onSelect, windowSize, step
 
       <div className="chart-wrap" ref={ref}>
         <p id="chart-keys" className="visually-hidden">
-          曲线可用键盘操作：左右方向键移动选区，PageUp 和 PageDown 快速移动，Home 和 End 跳到两端，按住 Shift 扩展选区。
+          曲线可用键盘操作：左右方向键移动选区，PageUp 和 PageDown 快速移动，Home 和 End
+          跳到两端，按住 Shift 扩展选区。
         </p>
         {windows.length === 0 ? (
           <p className="empty">序列太短，或尚未输入序列。</p>

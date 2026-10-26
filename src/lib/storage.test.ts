@@ -80,7 +80,12 @@ describe('loadSession', () => {
   it('falls back to defaults when the numbers are unusable', () => {
     const { storage, data } = makeStorage()
     data.set(STORAGE_KEY, JSON.stringify({ raw: 'ACGT', windowSize: 'wide', step: null }))
-    expect(loadSession(storage)).toEqual({ raw: 'ACGT', windowSize: 60, step: 10, activeExample: null })
+    expect(loadSession(storage)).toEqual({
+      raw: 'ACGT',
+      windowSize: 60,
+      step: 10,
+      activeExample: null,
+    })
   })
 
   it('clamps stored numbers into the slider range', () => {

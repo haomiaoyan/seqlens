@@ -84,7 +84,8 @@ export function LimitsSection() {
       </div>
 
       <p className="limits-note">
-        {APP_NAME} 是教学与轻量探索工具，不提供科研级结论。若结果将用于研究或临床场景，请使用经过验证的专业流程并独立复核。
+        {APP_NAME}{' '}
+        是教学与轻量探索工具，不提供科研级结论。若结果将用于研究或临床场景，请使用经过验证的专业流程并独立复核。
       </p>
     </section>
   )

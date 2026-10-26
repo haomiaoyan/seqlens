@@ -61,7 +61,10 @@ function buildMessy(): string {
   const clean = generate(rng, 180, 0.52)
   const withNs = clean.slice(0, 60) + 'NNNNNNNN' + clean.slice(60, 120) + 'NNNN' + clean.slice(120)
   const lower = withNs.toLowerCase()
-  const numbered = lower.match(/.{1,60}/g)!.map((line, i) => `${(i + 1) * 60}\t${line}`).join('\n')
+  const numbered = lower
+    .match(/.{1,60}/g)!
+    .map((line, i) => `${(i + 1) * 60}\t${line}`)
+    .join('\n')
   return `>messy-example | 故意混入大小写、行号、空格与非法字符 U\n${numbered}\n\n  ${withNs.slice(0, 40)} UUU  ${withNs.slice(40, 80)}\n`
 }
 
@@ -77,7 +80,10 @@ export const EXAMPLES: Example[] = [
     id: 'promoter',
     name: '启动子样片段',
     note: '合成序列 · 460 bp · 含 CACGTG motif',
-    fasta: toFasta('synthetic promoter-like fragment | 合成示例，非真实研究数据', buildPromoterLike()),
+    fasta: toFasta(
+      'synthetic promoter-like fragment | 合成示例，非真实研究数据',
+      buildPromoterLike(),
+    ),
   },
   {
     id: 'gcisland',

@@ -30,7 +30,11 @@ export function SequenceInput({ raw, onRawChange, parsed, onLoadExample, onClear
           <span className="step">01</span> 输入序列
         </h2>
         <div className="panel__head-actions">
-          <button type="button" className="btn btn--ghost btn--sm" onClick={() => fileRef.current?.click()}>
+          <button
+            type="button"
+            className="btn btn--ghost btn--sm"
+            onClick={() => fileRef.current?.click()}
+          >
             打开文件
           </button>
           <button type="button" className="btn btn--ghost btn--sm" onClick={onClear}>
@@ -101,7 +105,10 @@ export function SequenceInput({ raw, onRawChange, parsed, onLoadExample, onClear
       {parsed.invalidTotal > 0 && (
         <p className="notice notice--warn">
           发现 {formatInteger(parsed.invalidTotal)} 个非 A/C/G/T/N 字符，已忽略：
-          {parsed.invalid.slice(0, 6).map((item) => `${item.char}×${item.count}`).join('、')}
+          {parsed.invalid
+            .slice(0, 6)
+            .map((item) => `${item.char}×${item.count}`)
+            .join('、')}
         </p>
       )}
 

@@ -22,11 +22,16 @@ describe('moveCursor', () => {
   })
 
   it('moves left and clamps at zero', () => {
-    expect(run({ key: 'ArrowLeft', selection: { start: 0, end: 1 } }).selection).toEqual({ start: 0, end: 1 })
-    expect(run({ key: 'ArrowLeft', selection: { start: 3, end: 4 }, cursor: 3 }).selection).toEqual({
-      start: 2,
-      end: 3,
+    expect(run({ key: 'ArrowLeft', selection: { start: 0, end: 1 } }).selection).toEqual({
+      start: 0,
+      end: 1,
     })
+    expect(run({ key: 'ArrowLeft', selection: { start: 3, end: 4 }, cursor: 3 }).selection).toEqual(
+      {
+        start: 2,
+        end: 3,
+      },
+    )
   })
 
   it('clamps the right edge to the sequence length', () => {
@@ -40,19 +45,29 @@ describe('moveCursor', () => {
       start: 0,
       end: 1,
     })
-    expect(run({ key: 'End', selection: { start: 0, end: 1 } }).selection).toEqual({ start: 99, end: 100 })
-  })
-
-  it('pages by ten steps by default', () => {
-    expect(run({ key: 'PageDown', selection: { start: 0, end: 1 } }).selection).toEqual({ start: 10, end: 11 })
-    expect(run({ key: 'PageUp', selection: { start: 50, end: 51 }, cursor: 50 }).selection).toEqual({
-      start: 40,
-      end: 41,
+    expect(run({ key: 'End', selection: { start: 0, end: 1 } }).selection).toEqual({
+      start: 99,
+      end: 100,
     })
   })
 
+  it('pages by ten steps by default', () => {
+    expect(run({ key: 'PageDown', selection: { start: 0, end: 1 } }).selection).toEqual({
+      start: 10,
+      end: 11,
+    })
+    expect(run({ key: 'PageUp', selection: { start: 50, end: 51 }, cursor: 50 }).selection).toEqual(
+      {
+        start: 40,
+        end: 41,
+      },
+    )
+  })
+
   it('honours an explicit pageSize', () => {
-    expect(run({ key: 'PageDown', pageSize: 25, selection: { start: 0, end: 1 } }).selection).toEqual({
+    expect(
+      run({ key: 'PageDown', pageSize: 25, selection: { start: 0, end: 1 } }).selection,
+    ).toEqual({
       start: 25,
       end: 26,
     })
@@ -63,13 +78,24 @@ describe('moveCursor', () => {
     expect(first.selection).toEqual({ start: 5, end: 7 })
     expect(first.anchor).toBe(5)
 
-    const second = run({ shift: true, selection: first.selection, cursor: first.cursor, anchor: first.anchor })
+    const second = run({
+      shift: true,
+      selection: first.selection,
+      cursor: first.cursor,
+      anchor: first.anchor,
+    })
     expect(second.selection).toEqual({ start: 5, end: 8 })
     expect(second.anchor).toBe(5)
   })
 
   it('extends backwards when shifting left past the anchor', () => {
-    const result = run({ key: 'ArrowLeft', shift: true, selection: { start: 5, end: 7 }, cursor: 6, anchor: 6 })
+    const result = run({
+      key: 'ArrowLeft',
+      shift: true,
+      selection: { start: 5, end: 7 },
+      cursor: 6,
+      anchor: 6,
+    })
     expect(result.selection).toEqual({ start: 5, end: 7 })
   })
 
@@ -110,11 +136,20 @@ describe('moveCursor', () => {
   })
 
   it('returns an empty result for an empty sequence', () => {
-    expect(run({ length: 0, selection: null })).toEqual({ cursor: 0, anchor: null, selection: null })
+    expect(run({ length: 0, selection: null })).toEqual({
+      cursor: 0,
+      anchor: null,
+      selection: null,
+    })
   })
 
   it('treats an unknown key as no movement', () => {
-    const result = moveCursor({ ...base, key: 'ArrowRight', selection: { start: 7, end: 8 }, cursor: 7 })
+    const result = moveCursor({
+      ...base,
+      key: 'ArrowRight',
+      selection: { start: 7, end: 8 },
+      cursor: 7,
+    })
     expect(result.selection).toEqual({ start: 8, end: 9 })
   })
 })
