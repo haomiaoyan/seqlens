@@ -34,10 +34,15 @@
   --radius-sm: 9px;
 
   --shadow: 0 24px 60px -32px rgba(0, 0, 0, 0.9);
+  /* No webfont is loaded (the app ships zero network requests), so the stack
+     lists only faces that actually exist on the platform. Naming 'Inter' or
+     'JetBrains Mono' here would silently fall through to the next entry and
+     make the first-named family a lie. */
   --font-sans:
-    'Inter', 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+    system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    sans-serif;
   --font-mono:
-    'JetBrains Mono', 'SFMono-Regular', ui-monospace, 'Cascadia Code', Consolas, monospace;
+    ui-monospace, 'SFMono-Regular', 'Cascadia Code', Consolas, 'Liberation Mono', monospace;
 }
 
 /* ==========================================================================
