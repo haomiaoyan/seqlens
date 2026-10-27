@@ -104,7 +104,7 @@ export function GcChart({ windows, length, selection, onSelect, windowSize, step
     <section className="panel panel--chart" aria-labelledby="chart-title">
       <div className="panel__head">
         <h2 id="chart-title">
-          <span className="step">04</span> 滑窗 GC 曲线
+          <span className="step">03</span> 滑窗 GC 曲线
         </h2>
         <span className="muted mono">
           window {windowSize} · step {step} · 均值 {meanGc.toFixed(1)}%

@@ -195,7 +195,7 @@ export function SequenceViewer({ sequence, selection, onSelect, matches, showMat
     <section className="panel panel--sequence" aria-labelledby="sequence-title">
       <div className="panel__head">
         <h2 id="sequence-title">
-          <span className="step">03</span> 序列视图
+          <span className="step">04</span> 序列视图
         </h2>
         <div className="panel__head-actions">
           {selection && (
