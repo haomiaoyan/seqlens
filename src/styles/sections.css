@@ -512,7 +512,9 @@
 
 @media (max-width: 960px) {
   .workbench__grid {
-    grid-template-columns: 1fr;
+    /* 必须用 minmax(0, 1fr)：裸 1fr 的 auto 最小尺寸会被 textarea 里
+       的长单行序列值撑开（实测 4139px），整页横向溢出。 */
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .workbench__head {
