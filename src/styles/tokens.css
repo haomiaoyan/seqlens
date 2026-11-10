@@ -1,0 +1,117 @@
+/* ==========================================================================
+   SeqLens — design tokens（实验记录纸）
+   --------------------------------------------------------------------------
+   定调：极致极简。暖纸白底、近黑文字、精确间距；全站唯一强调色是
+   氧化铁红。浅色为主题默认值，[data-theme="dark"] 提供暖黑纸感的
+   切换值。组件层只允许引用这里的变量，禁止硬编码色值。
+
+   对比度纪律：--text/--muted/--accent 与四种碱基字色在两种主题的
+   页面底、面板底、凹槽底上都必须 ≥ 4.5:1（由 .verify/contrast.mjs
+   逐项把关，改值必须先跑闸门）。
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* 表面 */
+  --bg: #faf9f6; /* 暖纸白页面底 */
+  --surface: #ffffff; /* 输入框等可交互表面 */
+  --well: #f1efe9; /* 凹槽底（序列视图、代码块） */
+
+  /* 墨线 */
+  --line: rgba(28, 27, 24, 0.14); /* 发丝分隔线（纯装饰，豁免 1.4.11） */
+  --line-strong: rgba(28, 27, 24, 0.42); /* 区块顶线、边框 */
+  --control: rgba(
+    28,
+    27,
+    24,
+    0.55
+  ); /* 交互边界：输入框边框、滑轨、按钮描边，
+                                            合成后在纸白上 ≈ 4.0:1，满足 1.4.11 的 3:1 */
+
+  /* 文字 */
+  --text: #1c1b18; /* 暖近黑 */
+  --muted: #6e6a61; /* 说明文字，纸上 ≥ 5:1 */
+
+  /* 强调：氧化铁红，唯一强调色 */
+  --accent: #b3402a;
+  --accent-soft: rgba(179, 64, 42, 0.14);
+  --accent-ink: #1c1b18; /* 主按钮底色（墨底纸字），不占用强调色 */
+
+  /* 状态 */
+  --warn: #8a5d10;
+  --warn-bg: rgba(138, 93, 16, 0.1);
+  --danger: #8f2f1c;
+
+  /* 碱基字色（在纸底与凹槽底上均 ≥ 4.5:1） */
+  --base-a: #b3402a;
+  --base-c: #1c1b18;
+  --base-g: #5d5950;
+  --base-t: #8a5d10;
+  --base-n: #655f53;
+
+  /* 字体：零网络请求，只列真实存在的字体 */
+  --font-mono:
+    ui-monospace, 'Cascadia Code', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    sans-serif;
+
+  /* 几何：极简方向用小圆角与发丝边框，不用大阴影 */
+  --radius: 3px;
+  --radius-sm: 2px;
+  --border-width: 1px;
+
+  /* 间距梯度 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 14px;
+  --space-4: 22px;
+  --space-5: 36px;
+  --space-6: 56px;
+  --space-7: 88px;
+
+  /* 阅读宽度与版心 */
+  --page-max: 1180px;
+  --prose-max: 72ch;
+
+  /* 动效 */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 160ms;
+  --dur-base: 300ms;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* 表面：暖黑纸感，不发蓝 */
+  --bg: #161511;
+  --surface: #1d1b16;
+  --well: #100f0c;
+
+  /* 墨线反色 */
+  --line: rgba(236, 233, 225, 0.13);
+  --line-strong: rgba(236, 233, 225, 0.38);
+  --control: rgba(236, 233, 225, 0.55); /* 暗底合成后 ≈ 4.2:1 */
+
+  /* 文字 */
+  --text: #ece9e1;
+  --muted: #9a948a;
+
+  /* 强调：氧化铁红的暗底变体 */
+  --accent: #d96c4f;
+  --accent-soft: rgba(217, 108, 79, 0.18);
+  --accent-ink: #ece9e1;
+
+  /* 状态 */
+  --warn: #d9a94e;
+  --warn-bg: rgba(217, 169, 78, 0.12);
+  --danger: #e07a5f;
+
+  /* 碱基字色（暗底变体，≥ 4.5:1） */
+  --base-a: #e88a6f;
+  --base-c: #e8e4da;
+  --base-g: #b3ab9d;
+  --base-t: #d9a94e;
+  --base-n: #8d8677;
+}

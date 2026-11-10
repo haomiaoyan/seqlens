@@ -1,0 +1,641 @@
+/* ==========================================================================
+   SeqLens — components（顶栏、定调区、工作台、输入、组成概览）
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   顶栏：铭牌式，一条发丝底线，不加阴影不加浮层
+   -------------------------------------------------------------------------- */
+
+.site-header {
+  border-bottom: var(--border-width) solid var(--line-strong);
+  background: var(--bg);
+  transition: background-color var(--dur-base) var(--ease-out);
+}
+
+.site-header__inner {
+  width: 100%;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 14px clamp(20px, 4vw, 56px);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+}
+
+.brand {
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.brand strong {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* 品牌下的等宽小注，铭牌味道 */
+.brand__text small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.site-nav {
+  margin-left: auto;
+  display: flex;
+  gap: var(--space-4);
+}
+
+.site-nav a {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 4px 2px;
+  border-bottom: 1px solid transparent;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.site-nav a:hover {
+  color: var(--text);
+  border-bottom-color: var(--text);
+}
+
+.site-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* 主题切换：等宽小按钮，态随文字 */
+.theme-toggle {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  background: transparent;
+  color: var(--muted);
+  border: var(--border-width) solid var(--control);
+  border-radius: var(--radius);
+  padding: 7px 12px;
+  cursor: pointer;
+  min-height: 32px;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.theme-toggle:hover {
+  color: var(--text);
+  border-color: var(--control);
+}
+
+/* --------------------------------------------------------------------------
+   按钮：直角、发丝边框、无阴影；主按钮是墨底纸字
+   -------------------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  border: var(--border-width) solid var(--control);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
+}
+
+.btn:hover {
+  border-color: var(--text);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--accent-ink);
+  color: var(--bg);
+  border-color: var(--accent-ink);
+}
+
+.btn--primary:hover {
+  opacity: 0.86;
+}
+
+.btn--lg {
+  padding: 13px 26px;
+  font-size: 15px;
+}
+
+.btn--sm {
+  padding: 7px 14px;
+  font-size: 13px;
+}
+
+.btn--xs {
+  padding: 4px 10px;
+  font-size: 12px;
+  min-height: 0;
+}
+
+/* --------------------------------------------------------------------------
+   定调区：紧凑，一段就进入工具。没有徽章、没有辉光、没有特性卡
+   -------------------------------------------------------------------------- */
+
+.intro {
+  padding: clamp(48px, 8vw, 96px) 0 var(--space-6);
+}
+
+.intro__inner {
+  max-width: 620px;
+}
+
+/* 小号等宽引题：只有一个安静的字符编号 */
+.intro__kicker {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  color: var(--muted);
+  margin-bottom: var(--space-4);
+}
+
+.intro__title {
+  font-size: clamp(34px, 5.4vw, 52px);
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* 强调词用氧化铁红下划墨线，而不是整词变色块 */
+.intro__accent {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+
+.intro__lead {
+  margin-top: var(--space-4);
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.9;
+  max-width: 40em;
+}
+
+.intro__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.intro__meta {
+  margin-top: var(--space-4);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* --------------------------------------------------------------------------
+   工作台：面板不再是圆角卡片堆，而是记录纸上的分节
+   -------------------------------------------------------------------------- */
+
+.workbench {
+  padding-bottom: var(--space-7);
+}
+
+.workbench__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-top: 2px solid var(--text);
+  padding-top: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.workbench__head h2 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.workbench__head .muted {
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.session-note {
+  margin-top: 10px;
+  font-size: 12px;
+  min-height: 1.6em;
+}
+
+.session-note__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+}
+
+.session-note__item .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.session-note__item--dim {
+  color: var(--muted);
+}
+
+.session-note__hint {
+  color: var(--muted);
+  opacity: 0.75;
+}
+
+.param-controls {
+  display: flex;
+  gap: var(--space-5);
+}
+
+.param {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.param__label {
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.param input[type='range'] {
+  appearance: none;
+  width: 150px;
+  height: 2px;
+  background: var(--control);
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.param input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--text);
+}
+
+.param input[type='range']::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--text);
+}
+
+.workbench__grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.workbench__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* --------------------------------------------------------------------------
+   面板：编号 + 分节线，标题像记录纸的条目
+   -------------------------------------------------------------------------- */
+
+.panel {
+  border-top: var(--border-width) solid var(--line-strong);
+  padding-top: var(--space-3);
+}
+
+.panel__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.panel__head h2 {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+/* 面板编号：强调色等宽数字，全页唯一的编号语言 */
+.step {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.panel__head-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.panel__hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: var(--space-3);
+}
+
+/* --------------------------------------------------------------------------
+   输入面板
+   -------------------------------------------------------------------------- */
+
+.field {
+  display: block;
+}
+
+.field__label {
+  display: block;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 140px;
+  resize: vertical;
+  padding: 12px 14px;
+  background: var(--surface);
+  color: var(--text);
+  border: var(--border-width) solid var(--control);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.textarea:focus-visible {
+  /* 不移除焦点环：全局 :focus-visible 已给出强调色描边，
+     这里只把边框一并染成强调色作加强。 */
+  border-color: var(--accent);
+}
+
+.textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.examples__label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-right: 2px;
+}
+
+.chip {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 6px 12px;
+  min-height: 30px;
+  background: transparent;
+  color: var(--muted);
+  border: var(--border-width) solid var(--control);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.chip:hover {
+  color: var(--text);
+  border-color: var(--control);
+}
+
+.parse-report {
+  list-style: none;
+  margin-top: var(--space-3);
+  border-top: var(--border-width) solid var(--line);
+  padding-top: var(--space-2);
+}
+
+.parse-report li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 4px 0;
+  font-size: 13px;
+}
+
+.parse-report__k {
+  color: var(--muted);
+}
+
+.parse-report__v {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.parse-header {
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  word-break: break-all;
+}
+
+.notice {
+  margin-top: var(--space-3);
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 10px 14px;
+  border-left: 3px solid var(--warn);
+  background: var(--warn-bg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+/* --------------------------------------------------------------------------
+   组成概览
+   -------------------------------------------------------------------------- */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.stat__label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.stat__figure {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.stat__value {
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.stat__unit {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* 组成比例条：2px 细条，黑墨底线做轨道 */
+.composition {
+  display: flex;
+  height: 4px;
+  gap: 2px;
+  background: var(--line);
+  margin-bottom: var(--space-3);
+}
+
+.composition__seg {
+  min-width: 1px;
+}
+
+.composition__seg--a {
+  background: var(--base-a);
+}
+
+.composition__seg--c {
+  background: var(--base-c);
+}
+
+.composition__seg--g {
+  background: var(--base-g);
+}
+
+.composition__seg--t {
+  background: var(--base-t);
+}
+
+.composition__seg--n {
+  background: var(--base-n);
+}
+
+.base-legend {
+  list-style: none;
+  margin-bottom: var(--space-4);
+}
+
+.base-legend li {
+  display: grid;
+  grid-template-columns: 14px 1fr auto auto;
+  gap: 10px;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: var(--border-width) solid var(--line);
+  font-size: 13px;
+}
+
+.base-legend li:last-child {
+  border-bottom: 0;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  align-self: center;
+  border-radius: var(--radius-sm);
+}
+
+.swatch--a {
+  background: var(--base-a);
+}
+
+.swatch--c {
+  background: var(--base-c);
+}
+
+.swatch--g {
+  background: var(--base-g);
+}
+
+.swatch--t {
+  background: var(--base-t);
+}
+
+.swatch--n {
+  background: var(--base-n);
+}
+
+.base-legend__value {
+  font-variant-numeric: tabular-nums;
+}
+
+.base-legend__pct {
+  color: var(--muted);
+  min-width: 5.5ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.selection-box {
+  border-top: var(--border-width) solid var(--line-strong);
+  padding-top: var(--space-3);
+  font-size: 13px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px var(--space-3);
+}
+
+.selection-box__label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.selection-box__value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
