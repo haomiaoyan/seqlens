@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Header } from './components/Header'
-import { Hero } from './components/Hero'
+import { Intro } from './components/Intro'
 import { SequenceInput } from './components/SequenceInput'
 import { StatsPanel } from './components/StatsPanel'
 import { SequenceViewer } from './components/SequenceViewer'
@@ -146,7 +146,7 @@ export default function App() {
     <div className="app">
       <Header />
       <main>
-        <Hero onStart={startWithExample} sequenceLength={sequence.length} />
+        <Intro onStart={startWithExample} sequenceLength={sequence.length} />
 
         <section
           className="workbench"
