@@ -11,7 +11,7 @@ SeqLens 是一个**本地优先**的 DNA 序列可视化学习工具，页面标
 [![Deploy to GitHub Pages](https://github.com/haomiaoyan/seqlens/actions/workflows/deploy.yml/badge.svg)](https://github.com/haomiaoyan/seqlens/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-37e2c8.svg)](LICENSE)
 
-![SeqLens 首屏（浅色默认主题）](docs/hero.png)
+![SeqLens 首屏（浅色默认主题）](docs/hero-v2.png)
 
 ## 它能做什么
 
@@ -28,7 +28,7 @@ SeqLens 是一个**本地优先**的 DNA 序列可视化学习工具，页面标
 | 会话保留 | 序列与窗口参数自动存在本机浏览器，刷新后接着用；不联网、不上传 |
 | 错误兜底 | 每个面板独立 `ErrorBoundary`，单个面板渲染失败不会整页白屏 |
 
-![工作台（浅色主题）](docs/workbench.png)
+![工作台（浅色主题）](docs/workbench-v2.png)
 
 ## 使用示例
 
@@ -38,7 +38,7 @@ SeqLens 是一个**本地优先**的 DNA 序列可视化学习工具，页面标
 
 搜索 `CACGTG` 后，命中位置在序列视图里被描边，工具面板列出可点选的命中芯片：
 
-![Motif 匹配结果](docs/motif.png)
+![Motif 匹配结果](docs/motif-v2.png)
 
 ## 快速开始
 
